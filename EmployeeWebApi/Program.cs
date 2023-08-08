@@ -3,9 +3,13 @@ using EmployeeWebApi;
 using EmployeeWebApi.Data;
 using EmployeeWebApi.Model;
 using Microsoft.EntityFrameworkCore;
+using Azure.Identity;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+//var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+//builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
 
 
 
@@ -16,7 +20,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("EmployeeDbContext"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EmployeeDbContextURL"));
 });
 
 builder.Services.AddControllers();
@@ -28,6 +32,11 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+if (app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

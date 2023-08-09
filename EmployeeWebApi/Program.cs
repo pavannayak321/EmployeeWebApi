@@ -4,7 +4,10 @@ using EmployeeWebApi.Data;
 using EmployeeWebApi.Model;
 using Microsoft.EntityFrameworkCore;
 using Azure.Identity;
-
+using Azure.Core.Extensions;
+using Azure.Security.KeyVault;
+using Microsoft.Extensions.Azure;
+using EmployeeWebApi.AzureKeyVaultUtility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +20,13 @@ var builder = WebApplication.CreateBuilder(args);
 IMapper automapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(automapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddAzureClients(azureClientFactoryBuilder =>
+{
+    azureClientFactoryBuilder.AddSecretClient(builder.Configuration.GetSection("KeyVault"));
+});
+
+builder.Services.AddSingleton<IKeyVaultManager, KeyVaultManager>();
 
 builder.Services.AddDbContext<EmployeeDbContext>(options =>
 {
